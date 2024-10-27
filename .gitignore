@@ -1,0 +1,49 @@
+# Ignore Debug folders and everything in them
+**/Debug/
+
+# Ignore Release folders and everything in them (if applicable)
+**/Release/
+
+# Ignore build output folders
+[Bb]in/
+[Oo]bj/
+
+# Ignore executable files
+*.exe
+
+# Ignore Visual Studio temporary files and settings
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore intermediate build files and logs
+*.pdb
+*.ipch
+*.aps
+*.ncb
+*.sdf
+*.opensdf
+*.ilk
+*.log
+*.obj
+*.tlog
+*.pch
+*.idb
+*.iobj
+*.ipdb
+*.cache
+
+# Ignore Visual Studio Code files
+.vscode/
+*.code-workspace
+
+# Ignore NuGet packages (if used)
+packages/
+
+# Ignore Publish output
+publish/
+
+# Ignore x64 folder
+x64/
