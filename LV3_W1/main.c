@@ -24,7 +24,7 @@ void DoMatrixWriteSingleThreaded(float* matrix)
 		{
 			float value = 0;
 			for (uint64_t k = 0; k < i; k++)
-				value *= k * sinf(j) - j * cosf(k);
+				value += k * sinf(j) - j * cosf(k);
 
 			matrix[i * N + j] = value;
 		}
@@ -44,7 +44,7 @@ DWORD WINAPI DoMatrixWriteMultiThreaded(PVOID pThParam)
 		{
 			float value = 0;
 			for (uint64_t k = 0; k < i; k++)
-				value *= k * sinf(j) - j * cosf(k);
+				value += k * sinf(j) - j * cosf(k);
 
 			matrix[i * N + j] = value;
 		}
@@ -61,7 +61,7 @@ BOOL CheckIfMatrixIsWrittenProperly(float* matrix)
 		{
 			float value = 0;
 			for (uint64_t k = 0; k < i; k++)
-				value *= k * sinf(j) - j * cosf(k);
+				value += k * sinf(j) - j * cosf(k);
 
 			if (matrix[i * N + j] != value)
 				return FALSE;
