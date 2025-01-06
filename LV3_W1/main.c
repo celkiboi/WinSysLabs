@@ -127,6 +127,8 @@ int main(void)
 	else
 		puts("Matrix contains wrong values");
 
+	for (uint8_t i = 0; i < THREAD_COUNT; i++)
+		CloseHandle(thread_handles[i]);
 	free(thread_params);
 	free(matrix);
 	return 0;
