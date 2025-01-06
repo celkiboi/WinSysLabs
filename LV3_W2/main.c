@@ -7,7 +7,7 @@
 
 #define N 768
 #define ARRAY_SIZE N*N
-#define THREAD_COUNT 2
+#define THREAD_COUNT 12
 
 typedef struct ThreadParam
 {
@@ -47,6 +47,8 @@ void DoMatrixWriteSingleThreaded(float* matrix)
 
 uint64_t finishedThreadsCount = 0;
 HANDLE rowCompleteEvent;
+HANDLE allThreadsCompletedEvent;
+CRITICAL_SECTION event_section;
 
 DWORD WINAPI DoMatrixWriteMultiThreaded(PVOID pThParam)
 {
@@ -58,6 +60,8 @@ DWORD WINAPI DoMatrixWriteMultiThreaded(PVOID pThParam)
 
 	for (uint64_t i = 0; i < N; i++)
 	{
+		WaitForSingleObject(allThreadsCompletedEvent, INFINITE);
+
 		float previousRowAverage = (i > 0) ? RowAverageValue(matrix, i - 1) : 0;
 		for (uint64_t j = beginCol; j < endCol; j++)
 		{
@@ -68,18 +72,24 @@ DWORD WINAPI DoMatrixWriteMultiThreaded(PVOID pThParam)
 			matrix[i * N + j] = value + previousRowAverage;
 		}
 
+		EnterCriticalSection(&event_section);
 		BOOL shouldReset = FALSE;
-		if (InterlockedIncrement(&finishedThreadsCount) == THREAD_COUNT)
+		if (++finishedThreadsCount == THREAD_COUNT)
 		{
-			InterlockedExchange(&finishedThreadsCount, 0);
+			finishedThreadsCount = 0;
+			ResetEvent(allThreadsCompletedEvent);
 			SetEvent(rowCompleteEvent);
 			shouldReset = TRUE;
 		}
+		LeaveCriticalSection(&event_section);
 
 		WaitForSingleObject(rowCompleteEvent, INFINITE);
 
 		if (shouldReset)
+		{
 			ResetEvent(rowCompleteEvent);
+			SetEvent(allThreadsCompletedEvent);
+		}
 	}
 
 	ExitThread(0);
@@ -136,6 +146,10 @@ int main(void)
 	rowCompleteEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (rowCompleteEvent == NULL)
 		exit(-3);
+	allThreadsCompletedEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
+	if (allThreadsCompletedEvent == NULL)
+		exit(-3);
+	InitializeCriticalSection(&event_section);
 
 	HANDLE thread_handles[THREAD_COUNT] = { NULL };
 
@@ -165,6 +179,7 @@ int main(void)
 	else
 		puts("Matrix contains wrong values");
 
+	DeleteCriticalSection(&event_section);
 	for (uint8_t i = 0; i < THREAD_COUNT; i++)
 		CloseHandle(thread_handles[i]);
 	CloseHandle(rowCompleteEvent);
