@@ -1,3 +1,7 @@
+// uncomment the following to change the communication standard to ASCII
+//#undef UNICODE
+//#undef _UNICODE
+
 #include <stdio.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -57,6 +61,8 @@ INT32 _tmain(INT32 argc, LPTSTR argv[])
 		returnValue = 5;
 		goto exit;
 	}
+
+	_tprintf(_T("Communication started. Using %d byte(s) to represent a character.\n"), sizeof(TCHAR));
 
 	TCHAR* messageBuffer[COMMUNICATION_BUFFER] = { 0 };
 	_stprintf_s(messageBuffer, sizeof(messageBuffer) / sizeof(TCHAR), _T("N%s"), name);

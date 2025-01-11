@@ -1,3 +1,8 @@
+// uncomment the following to change the communication standard to ASCII
+// doing so will allow for Unix compatability (and Windows on ASCII clients) but will make clients compiled with UNICODE incompatible
+//#undef UNICODE
+//#undef _UNICODE
+
 #include <stdio.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -151,7 +156,10 @@ INT32 _tmain(INT32 argc, LPTSTR argv[])
 	}
 
 	listen(listenSocket, CLIENT_COUNT);
-	_tprintf(_T("SERVER STARTED ON: %s:%d\n"), IpAddress, port);
+	_tprintf(_T("SERVER STARTED ON: %s:%d\nUsing %d byte(s) to represent a character.\n"), IpAddress, port, sizeof(TCHAR));
+#ifdef UNICODE
+	_tprintf(_T("WARNING: Using %d bytes to represent characters will result in errors on Unix clients\nChange the source code by uncommenting UNICODE undefinitions to allow for Unix compatability\n"), sizeof(TCHAR));
+#endif
 
 	UINT32 numberOfConnections = 0;
 	HANDLE clientThreadHandles[CLIENT_COUNT] = { 0 };
